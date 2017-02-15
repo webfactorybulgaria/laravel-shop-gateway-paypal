@@ -65,7 +65,6 @@ class GatewayPayPalExpress extends PaymentGateway
 
         // Begin paypal
         try {
-
             if ($order->total <= 0) {
                 
                 $this->statusCode = 'completed';
@@ -86,7 +85,7 @@ class GatewayPayPalExpress extends PaymentGateway
             $list = new ItemList();
             
             $list->setItems($this->toPayPalItems($order));
-            
+
             $details = new Details();
             
             $details->setShipping($order->totalShipping)
@@ -94,7 +93,14 @@ class GatewayPayPalExpress extends PaymentGateway
                 ->setSubtotal($order->totalPrice);
 
             $amount = new Amount();
+            /*"shipping" => "10"
+            "tax" => "3.84"
+            "subtotal" => "19.20"*/
 
+            /*"shipping" => "5"
+            "tax" => "1.92"
+            "subtotal" => "9.60"*/
+//dd($details);
             $amount->setCurrency(Config::get('shop.currency'))
                 ->setTotal($order->total)
                 ->setDetails($details);
@@ -263,6 +269,18 @@ class GatewayPayPalExpress extends PaymentGateway
 
                 $items[] = $item;
             }
+        }
+        if ($discount = $order->totalDiscount) {
+            $item = new Item();
+
+            $item->setName('Discount')
+                ->setDescription('discount')
+                ->setCurrency($shopItem->currency)
+                ->setQuantity(1)
+                ->setTax(0)
+                ->setPrice(-$discount);
+
+            $items[] = $item;
         }
 
         return $items;
